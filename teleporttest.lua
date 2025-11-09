@@ -10,7 +10,7 @@ screenGui.Parent = player:WaitForChild("PlayerGui")
 -- Основной фрейм
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 200, 0, 100)
+mainFrame.Size = UDim2.new(0, 200, 0, 120)
 mainFrame.Position = UDim2.new(0.5, -100, 0, 20)
 mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 mainFrame.BorderSizePixel = 0
@@ -20,38 +20,41 @@ mainFrame.Parent = screenGui
 local titleBar = Instance.new("TextLabel")
 titleBar.Name = "TitleBar"
 titleBar.Text = "Телепортация"
-titleBar.Size = UDim2.new(1, 0, 0, 20)
+titleBar.Size = UDim2.new(1, 0, 0, 25)
 titleBar.Position = UDim2.new(0, 0, 0, 0)
 titleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 titleBar.TextColor3 = Color3.new(1, 1, 1)
 titleBar.BorderSizePixel = 0
 titleBar.Parent = mainFrame
 
--- Кнопка телепортации к точке A
-local teleportToAButton = Instance.new("TextButton")
-teleportToAButton.Name = "TeleportToAButton"
-teleportToAButton.Text = "Точка A"
-teleportToAButton.Size = UDim2.new(0.8, 0, 0, 30)
-teleportToAButton.Position = UDim2.new(0.1, 0, 0.3, 0)
-teleportToAButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-teleportToAButton.TextColor3 = Color3.new(1, 1, 1)
-teleportToAButton.BorderSizePixel = 0
-teleportToAButton.Parent = mainFrame
+-- Кнопка включения телепортации
+local toggleOnButton = Instance.new("TextButton")
+toggleOnButton.Name = "ToggleOnButton"
+toggleOnButton.Text = "Включить телепорт"
+toggleOnButton.Size = UDim2.new(0.8, 0, 0, 30)
+toggleOnButton.Position = UDim2.new(0.1, 0, 0.3, 0)
+toggleOnButton.BackgroundColor3 = Color3.fromRGB(60, 150, 60)
+toggleOnButton.TextColor3 = Color3.new(1, 1, 1)
+toggleOnButton.BorderSizePixel = 0
+toggleOnButton.Parent = mainFrame
 
--- Кнопка телепортации к точке B
-local teleportToBButton = Instance.new("TextButton")
-teleportToBButton.Name = "TeleportToBButton"
-teleportToBButton.Text = "Точка B"
-teleportToBButton.Size = UDim2.new(0.8, 0, 0, 30)
-teleportToBButton.Position = UDim2.new(0.1, 0, 0.6, 0)
-teleportToBButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-teleportToBButton.TextColor3 = Color3.new(1, 1, 1)
-teleportToBButton.BorderSizePixel = 0
-teleportToBButton.Parent = mainFrame
+-- Кнопка выключения телепортации
+local toggleOffButton = Instance.new("TextButton")
+toggleOffButton.Name = "ToggleOffButton"
+toggleOffButton.Text = "Выключить телепорт"
+toggleOffButton.Size = UDim2.new(0.8, 0, 0, 30)
+toggleOffButton.Position = UDim2.new(0.1, 0, 0.6, 0)
+toggleOffButton.BackgroundColor3 = Color3.fromRGB(150, 60, 60)
+toggleOffButton.TextColor3 = Color3.new(1, 1, 1)
+toggleOffButton.BorderSizePixel = 0
+toggleOffButton.Parent = mainFrame
 
 -- Координаты для телепортации
 local pointA = Vector3.new(-164.35, 3.55, 60.23)
 local pointB = Vector3.new(-137.03, 5.35, 37.71)
+
+-- Переменная для отслеживания состояния телепортации
+local isTeleporting = false
 
 -- Функция телепортации
 local function teleportTo(point)
@@ -60,13 +63,28 @@ local function teleportTo(point)
     end
 end
 
--- Обработчики нажатия на кнопки
-teleportToAButton.MouseButton1Click:Connect(function()
-    teleportTo(pointA)
+-- Обработчик включения телепортации
+toggleOnButton.MouseButton1Click:Connect(function()
+    if not isTeleporting then
+        isTeleporting = true
+        toggleOnButton.Text = "Телепорт включён"
+        toggleOnButton.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
+        while isTeleporting do
+            teleportTo(pointA)
+            wait(0.4)
+            if not isTeleporting then break end
+            teleportTo(pointB)
+            wait(0.4)
+            if not isTeleporting then break end
+        end
+    end
 end)
 
-teleportToBButton.MouseButton1Click:Connect(function()
-    teleportTo(pointB)
+-- Обработчик выключения телепортации
+toggleOffButton.MouseButton1Click:Connect(function()
+    isTeleporting = false
+    toggleOnButton.Text = "Включить телепорт"
+    toggleOnButton.BackgroundColor3 = Color3.fromRGB(60, 150, 60)
 end)
 
 -- Перетаскивание окна
