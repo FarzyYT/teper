@@ -51,7 +51,7 @@ local function teleportAndMove()
 
         -- Телепортация на точку 2
         game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(point2))
-        wait(0.4)
+        wait(1)
 
         -- Перемещение к точке 3
         local humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
