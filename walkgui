@@ -1,0 +1,65 @@
+-- Создаём перетаскиваемую мини-GUI с кнопками включения/выключения
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+-- Координаты
+local position1 = Vector3.new(-164.35, 3.55, 60.23)
+local position2 = Vector3.new(-137.03, 5.35, 37.71)
+
+-- Переменная для управления ходьбой
+local isWalking = false
+
+-- Функция для перемещения к точке
+local function moveTo(position)
+    humanoid:MoveTo(position)
+    repeat wait() until (character.HumanoidRootPart.Position - position).Magnitude < 5
+end
+
+-- Функция для автоматической ходьбы
+local function startWalking()
+    isWalking = true
+    while isWalking do
+        moveTo(position1)
+        wait(1)
+        moveTo(position2)
+        wait(1)
+    end
+end
+
+-- Создаём GUI
+local gui = Instance.new("ScreenGui", player.PlayerGui)
+gui.Name = "WalkGUI"
+
+-- Фрейм для GUI
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 150, 0, 80)
+frame.Position = UDim2.new(0.5, -75, 0.5, -40)
+frame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true  -- Позволяет перетаскивать GUI
+
+-- Кнопка "Включить"
+local startButton = Instance.new("TextButton", frame)
+startButton.Size = UDim2.new(0, 130, 0, 30)
+startButton.Position = UDim2.new(0, 10, 0, 10)
+startButton.Text = "Включить"
+startButton.BackgroundColor3 = Color3.new(0, 0.7, 0)
+startButton.TextColor3 = Color3.new(1, 1, 1)
+startButton.MouseButton1Click:Connect(function()
+    if not isWalking then
+        startWalking()
+    end
+end)
+
+-- Кнопка "Выключить"
+local stopButton = Instance.new("TextButton", frame)
+stopButton.Size = UDim2.new(0, 130, 0, 30)
+stopButton.Position = UDim2.new(0, 10, 0, 50)
+stopButton.Text = "Выключить"
+stopButton.BackgroundColor3 = Color3.new(0.7, 0, 0)
+stopButton.TextColor3 = Color3.new(1, 1, 1)
+stopButton.MouseButton1Click:Connect(function()
+    isWalking = false
+end)
