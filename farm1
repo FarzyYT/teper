@@ -1,0 +1,81 @@
+-- Создаём экранное GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "TeleportGUI"
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Создаём основной фрейм
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 200, 0, 100)
+Frame.Position = UDim2.new(0.5, -100, 0.5, -50)
+Frame.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+Frame.BorderSizePixel = 0
+Frame.Active = true
+Frame.Draggable = true
+Frame.Parent = ScreenGui
+
+-- Создаём кнопку "Включить"
+local EnableButton = Instance.new("TextButton")
+EnableButton.Size = UDim2.new(0, 180, 0, 30)
+EnableButton.Position = UDim2.new(0.5, -90, 0, 10)
+EnableButton.AnchorPoint = Vector2.new(0.5, 0)
+EnableButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+EnableButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+EnableButton.Text = "Включить"
+EnableButton.Parent = Frame
+
+-- Создаём кнопку "Выключить"
+local DisableButton = Instance.new("TextButton")
+DisableButton.Size = UDim2.new(0, 180, 0, 30)
+DisableButton.Position = UDim2.new(0.5, -90, 0, 50)
+DisableButton.AnchorPoint = Vector2.new(0.5, 0)
+DisableButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+DisableButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+DisableButton.Text = "Выключить"
+DisableButton.Parent = Frame
+
+-- Координаты точек
+local point1 = Vector3.new(-164.35, 3.55, 60.23)
+local point2 = Vector3.new(-140.38, 5.35, 39.84)
+local point3 = Vector3.new(-137.03, 5.35, 37.71)
+
+-- Флаг для включения/выключения телепортации
+local isTeleporting = false
+
+-- Функция телепортации и перемещения
+local function teleportAndMove()
+    while isTeleporting do
+        -- Телепортация на точку 1
+        game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(point1))
+        wait(0.4)
+
+        -- Телепортация на точку 2
+        game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(point2))
+        wait(0.4)
+
+        -- Перемещение к точке 3
+        local humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid:MoveTo(point3)
+            -- Ждём, пока персонаж дойдёт до точки 3
+            repeat wait() until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - point3).Magnitude < 5
+        end
+    end
+end
+
+-- Обработчик кнопки "Включить"
+EnableButton.MouseButton1Click:Connect(function()
+    if not isTeleporting then
+        isTeleporting = true
+        EnableButton.BackgroundColor3 = Color3.fromRGB(0, 100, 0)
+        teleportAndMove()
+    end
+end)
+
+-- Обработчик кнопки "Выключить"
+DisableButton.MouseButton1Click:Connect(function()
+    if isTeleporting then
+        isTeleporting = false
+        EnableButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+    end
+end)
