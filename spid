@@ -1,0 +1,202 @@
+-- Скрипт с GUI для управления скоростью ходьбы
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
+
+-- Создаем GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "SpeedControlGUI"
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 200)
+frame.Position = UDim2.new(0, 10, 0, 10)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+frame.BorderSizePixel = 0
+frame.Parent = screenGui
+
+-- Заголовок
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.Text = "🎯 Контроль Скорости"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+title.TextSize = 16
+title.Font = Enum.Font.GothamBold
+title.Parent = frame
+
+-- Поле ввода скорости
+local speedLabel = Instance.new("TextLabel")
+speedLabel.Size = UDim2.new(1, -20, 0, 25)
+speedLabel.Position = UDim2.new(0, 10, 0, 50)
+speedLabel.Text = "Скорость ходьбы:"
+speedLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+speedLabel.BackgroundTransparency = 1
+speedLabel.TextSize = 14
+speedLabel.TextXAlignment = Enum.TextXAlignment.Left
+speedLabel.Parent = frame
+
+local speedBox = Instance.new("TextBox")
+speedBox.Size = UDim2.new(1, -20, 0, 35)
+speedBox.Position = UDim2.new(0, 10, 0, 75)
+speedBox.PlaceholderText = "Введите скорость (16-500)"
+speedBox.Text = "50"
+speedBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+speedBox.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+speedBox.BorderSizePixel = 0
+speedBox.TextSize = 14
+speedBox.Parent = frame
+
+-- Кнопка применения
+local applyButton = Instance.new("TextButton")
+applyButton.Size = UDim2.new(1, -20, 0, 40)
+applyButton.Position = UDim2.new(0, 10, 0, 120)
+applyButton.Text = "🚀 ПРИМЕНИТЬ СКОРОСТЬ"
+applyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+applyButton.BackgroundColor3 = Color3.fromRGB(0, 120, 215)
+applyButton.BorderSizePixel = 0
+applyButton.TextSize = 14
+applyButton.Font = Enum.Font.GothamBold
+applyButton.Parent = frame
+
+-- Текущая скорость
+local currentSpeedLabel = Instance.new("TextLabel")
+currentSpeedLabel.Size = UDim2.new(1, -20, 0, 20)
+currentSpeedLabel.Position = UDim2.new(0, 10, 0, 170)
+currentSpeedLabel.Text = "Текущая скорость: 16"
+currentSpeedLabel.TextColor3 = Color3.fromRGB(100, 200, 100)
+currentSpeedLabel.BackgroundTransparency = 1
+currentSpeedLabel.TextSize = 12
+currentSpeedLabel.TextXAlignment = Enum.TextXAlignment.Left
+currentSpeedLabel.Parent = frame
+
+-- Анимация кнопки
+local function animateButton(button)
+    local originalSize = button.Size
+    local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    
+    local shrinkTween = TweenService:Create(button, tweenInfo, {Size = originalSize - UDim2.new(0, 10, 0, 5)})
+    local growTween = TweenService:Create(button, tweenInfo, {Size = originalSize})
+    
+    shrinkTween:Play()
+    shrinkTween.Completed:Connect(function()
+        growTween:Play()
+    end)
+end
+
+-- Функция применения скорости
+local function applyWalkSpeed()
+    local speedText = speedBox.Text
+    local speed = tonumber(speedText)
+    
+    if speed and speed >= 16 and speed <= 500 then
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = speed
+                currentSpeedLabel.Text = "Текущая скорость: " .. speed
+                currentSpeedLabel.TextColor3 = Color3.fromRGB(100, 200, 100)
+                
+                -- Временное сообщение об успехе
+                local successLabel = Instance.new("TextLabel")
+                successLabel.Size = UDim2.new(1, -20, 0, 25)
+                successLabel.Position = UDim2.new(0, 10, 0, 195)
+                successLabel.Text = "✅ Скорость применена!"
+                successLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+                successLabel.BackgroundTransparency = 1
+                successLabel.TextSize = 12
+                successLabel.Parent = frame
+                
+                -- Удаляем сообщение через 2 секунды
+                delay(2, function()
+                    if successLabel.Parent then
+                        successLabel:Destroy()
+                    end
+                end)
+            else
+                warn("Humanoid не найден!")
+            end
+        else
+            warn("Персонаж не найден!")
+        end
+    else
+        -- Ошибка валидации
+        speedBox.BackgroundColor3 = Color3.fromRGB(80, 40, 40)
+        currentSpeedLabel.Text = "❌ Ошибка: введите число от 16 до 500"
+        currentSpeedLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+        
+        -- Возвращаем цвет через секунду
+        delay(1, function()
+            speedBox.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+        end)
+    end
+end
+
+-- Обработчики событий
+applyButton.MouseButton1Click:Connect(function()
+    animateButton(applyButton)
+    applyWalkSpeed()
+end)
+
+-- Enter для применения скорости
+speedBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        applyWalkSpeed()
+    end
+end)
+
+-- Автоматическое применение при респавне
+player.CharacterAdded:Connect(function(character)
+    wait(1) -- Ждем загрузки персонажа
+    local speedText = speedBox.Text
+    local speed = tonumber(speedText)
+    
+    if speed and speed >= 16 and speed <= 500 then
+        local humanoid = character:WaitForChild("Humanoid")
+        humanoid.WalkSpeed = speed
+        currentSpeedLabel.Text = "Текущая скорость: " .. speed
+        print("✅ Скорость автоматически применена при респавне: " .. speed)
+    end
+end)
+
+-- Применяем начальную скорость при запуске
+delay(2, function()
+    applyWalkSpeed()
+end)
+
+-- Делаем GUI перетаскиваемым
+local dragging = false
+local dragInput, dragStart, startPos
+
+title.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+title.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+print("🎮 GUI для контроля скорости загружен!")
+print("📝 Введите желаемую скорость и нажмите кнопку")
+print("💡 Стандартная скорость: 16")
