@@ -59,6 +59,7 @@ local function teleportAndMove()
             humanoid:MoveTo(point3)
             -- Ждём, пока персонаж дойдёт до точки 3
             repeat wait() until (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - point3).Magnitude < 5
+            wait(1)
         end
     end
 end
