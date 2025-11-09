@@ -52,6 +52,7 @@ toggleOffButton.Parent = mainFrame
 -- Координаты для телепортации
 local pointA = Vector3.new(-164.35, 3.55, 60.23)
 local pointB = Vector3.new(-137.03, 5.35, 37.71)
+local pointC = Vector3.new(-100, 5, 50)  -- Добавьте свои координаты для третьей точки
 
 -- Переменная для отслеживания состояния телепортации
 local isTeleporting = false
@@ -72,7 +73,12 @@ toggleOnButton.MouseButton1Click:Connect(function()
             teleportTo(pointA)
             wait(0.4)
             if not isTeleporting then break end
+
             teleportTo(pointB)
+            wait(0.4)
+            if not isTeleporting then break end
+
+            teleportTo(pointC)
             wait(0.4)
             if not isTeleporting then break end
         end
