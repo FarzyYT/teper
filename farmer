@@ -1,77 +1,118 @@
--- Создаём экранное GUI
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "TeleportGUI"
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+-- Локальный скрипт для телепортации с GUI
+local player = game:GetService("Players").LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
 
--- Создаём основной фрейм
-local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 200, 0, 100)
-Frame.Position = UDim2.new(0.5, -100, 0.5, -50)
-Frame.AnchorPoint = Vector2.new(0.5, 0.5)
-Frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Frame.BorderSizePixel = 0
-Frame.Active = true
-Frame.Draggable = true
-Frame.Parent = ScreenGui
+-- Создаём GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "TeleportGUI"
+screenGui.Parent = player:WaitForChild("PlayerGui")
 
--- Создаём кнопку "Включить"
-local EnableButton = Instance.new("TextButton")
-EnableButton.Size = UDim2.new(0, 180, 0, 30)
-EnableButton.Position = UDim2.new(0.5, -90, 0, 10)
-EnableButton.AnchorPoint = Vector2.new(0.5, 0)
-EnableButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
-EnableButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-EnableButton.Text = "Включить"
-EnableButton.Parent = Frame
+-- Основной фрейм
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 220, 0, 100)
+mainFrame.Position = UDim2.new(0.5, -110, 0, 20)
+mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+mainFrame.BorderSizePixel = 0
+mainFrame.Parent = screenGui
 
--- Создаём кнопку "Выключить"
-local DisableButton = Instance.new("TextButton")
-DisableButton.Size = UDim2.new(0, 180, 0, 30)
-DisableButton.Position = UDim2.new(0.5, -90, 0, 50)
-DisableButton.AnchorPoint = Vector2.new(0.5, 0)
-DisableButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
-DisableButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-DisableButton.Text = "Выключить"
-DisableButton.Parent = Frame
+-- Заголовок для перетаскивания
+local titleBar = Instance.new("TextLabel")
+titleBar.Name = "TitleBar"
+titleBar.Text = "Телепортация"
+titleBar.Size = UDim2.new(1, 0, 0, 25)
+titleBar.Position = UDim2.new(0, 0, 0, 0)
+titleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+titleBar.TextColor3 = Color3.new(1, 1, 1)
+titleBar.BorderSizePixel = 0
+titleBar.Parent = mainFrame
 
--- Координаты точек
-local point1 = Vector3.new(-164.35, 3.55, 60.23)
-local point2 = Vector3.new(-140.38, 5.35, 39.84)
-local point3 = Vector3.new(-137.03, 5.35, 37.71)
+-- Кнопка включения телепортации
+local toggleOnButton = Instance.new("TextButton")
+toggleOnButton.Name = "ToggleOnButton"
+toggleOnButton.Text = "Включить"
+toggleOnButton.Size = UDim2.new(0.9, 0, 0, 30)
+toggleOnButton.Position = UDim2.new(0.05, 0, 0.35, 0)
+toggleOnButton.BackgroundColor3 = Color3.fromRGB(60, 150, 60)
+toggleOnButton.TextColor3 = Color3.new(1, 1, 1)
+toggleOnButton.BorderSizePixel = 0
+toggleOnButton.Parent = mainFrame
 
--- Флаг для включения/выключения телепортации
+-- Кнопка выключения телепортации
+local toggleOffButton = Instance.new("TextButton")
+toggleOffButton.Name = "ToggleOffButton"
+toggleOffButton.Text = "Выключить"
+toggleOffButton.Size = UDim2.new(0.9, 0, 0, 30)
+toggleOffButton.Position = UDim2.new(0.05, 0, 0.65, 0)
+toggleOffButton.BackgroundColor3 = Color3.fromRGB(150, 60, 60)
+toggleOffButton.TextColor3 = Color3.new(1, 1, 1)
+toggleOffButton.BorderSizePixel = 0
+toggleOffButton.Parent = mainFrame
+
+-- Координаты для телепортации
+local pointA = Vector3.new(-164.35, 3.55, 60.23)
+local pointB = Vector3.new(-137.03, 5.35, 37.71)
+
+-- Переменная для отслеживания состояния телепортации
 local isTeleporting = false
 
 -- Функция телепортации
-local function teleport()
-    while isTeleporting do
-        -- Телепортация на точку 1
-        game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(point1))
-        wait(0.4)
-
-        -- Телепортация на точку 2
-        game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(point2))
-        wait(0.4)
-
-        -- Телепортация на точку 3
-        game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(point3))
-        wait(0.4)
+local function teleportTo(point)
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character.HumanoidRootPart.CFrame = CFrame.new(point)
     end
 end
 
--- Обработчик кнопки "Включить"
-EnableButton.MouseButton1Click:Connect(function()
+-- Обработчик включения телепортации
+toggleOnButton.MouseButton1Click:Connect(function()
     if not isTeleporting then
         isTeleporting = true
-        EnableButton.BackgroundColor3 = Color3.fromRGB(0, 100, 0)
-        teleport()
+        toggleOnButton.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
+        while isTeleporting do
+            teleportTo(pointA)
+            wait(0.4)
+            if not isTeleporting then break end
+            teleportTo(pointB)
+            wait(0.4)
+            if not isTeleporting then break end
+        end
     end
 end)
 
--- Обработчик кнопки "Выключить"
-DisableButton.MouseButton1Click:Connect(function()
-    if isTeleporting then
-        isTeleporting = false
-        EnableButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+-- Обработчик выключения телепортации
+toggleOffButton.MouseButton1Click:Connect(function()
+    isTeleporting = false
+    toggleOnButton.BackgroundColor3 = Color3.fromRGB(60, 150, 60)
+end)
+
+-- Перетаскивание окна
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+titleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+    end
+end)
+
+titleBar.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        mainFrame.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
     end
 end)
