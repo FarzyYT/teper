@@ -47,7 +47,7 @@ local function teleportAndMove()
     while isTeleporting do
         -- Телепортация на точку 1
         game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(point1))
-        wait(0.4)
+        wait(1)
 
         -- Телепортация на точку 2
         game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(point2))
